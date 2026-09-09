@@ -5,16 +5,6 @@ const sendToken = (user, statusCode, res) => {
     expiresIn: process.env.JWT_EXPIRE,
   });
 
-  const cookieOptions = {
-    expires: new Date(
-      Date.now() + parseInt(process.env.COOKIE_EXPIRE) * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    secure: process.env.NODE_ENV === "production",
-  };
-
-  // Remove password from output
   const userData = {
     _id: user._id,
     name: user.name,
@@ -22,8 +12,9 @@ const sendToken = (user, statusCode, res) => {
     role: user.role,
   };
 
-  res.status(statusCode).cookie("token", token, cookieOptions).json({
+  res.status(statusCode).json({
     success: true,
+    token,
     data: userData,
   });
 };

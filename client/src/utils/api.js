@@ -1,22 +1,31 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://yungd-codecamp-api.onrender.com/api", withCredentials: true,
+  baseURL: "https://yungd-codecamp-api.onrender.com/api",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Response interceptor for error handling
+// Add token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("codecamp_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const message =
       error.response?.data?.message || "Something went wrong. Try again.";
 
-    // If 401, user is not authenticated
     if (error.response?.status === 401) {
-      // Only redirect if not already on auth pages
+      localStorage.removeItem("codecamp_token");
       if (
         !window.location.pathname.includes("/login") &&
         !window.location.pathname.includes("/register")
