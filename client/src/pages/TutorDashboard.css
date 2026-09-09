@@ -1,0 +1,51 @@
+.tutor-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.tutor-stat {
+  text-align: center;
+  padding: 20px;
+}
+
+.tutor-stat__num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.tutor-quick__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tutor-action {
+  text-decoration: none;
+  color: inherit;
+}
+
+.tutor-action:hover {
+  color: inherit;
+}
+
+.tutor-action h4 {
+  margin-bottom: 4px;
+}
+
+.tutor-action p {
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 768px) {
+  .tutor-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tutor-quick__grid {
+    grid-template-columns: 1fr;
+  }
+}

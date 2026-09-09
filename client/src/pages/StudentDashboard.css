@@ -1,0 +1,108 @@
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.dash-progress-card {
+  min-width: 240px;
+  padding: 16px 20px;
+}
+
+.dash-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.dash-progress-pct {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.dash-week {
+  margin-bottom: 40px;
+}
+
+.dash-week__header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dash-week__header h3 {
+  font-size: 1.0625rem;
+}
+
+.dash-week__sessions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.dash-session {
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.dash-session:hover {
+  color: inherit;
+}
+
+.dash-session--done {
+  border-color: rgba(62, 166, 107, 0.25);
+}
+
+.dash-session__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dash-session__num {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.dash-session__day {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dash-session__title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.dash-session__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .dash-header {
+    flex-direction: column;
+  }
+
+  .dash-progress-card {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .dash-week__sessions {
+    grid-template-columns: 1fr;
+  }
+}

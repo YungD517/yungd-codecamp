@@ -1,0 +1,149 @@
+.landing__hero {
+  padding: 100px 0 80px;
+  text-align: center;
+}
+
+.landing__eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+.landing__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.landing__subtitle {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.landing__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.landing__what {
+  padding: 60px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.landing__what h2 {
+  margin-bottom: 32px;
+}
+
+.landing__builds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.landing__builds .card h4 {
+  margin-bottom: 8px;
+}
+
+.landing__builds .card p {
+  font-size: 0.875rem;
+}
+
+.landing__weeks {
+  padding: 60px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.landing__weeks h2 {
+  margin-bottom: 32px;
+}
+
+.landing__week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.landing__week-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--bg-secondary);
+}
+
+.landing__week-num {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.landing__week-item h4 {
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+
+.landing__week-item p {
+  font-size: 0.8125rem;
+}
+
+.landing__bottom-cta {
+  padding: 80px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.landing__bottom-cta h2 {
+  margin-bottom: 8px;
+}
+
+.landing__bottom-cta p {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .landing__hero {
+    padding: 60px 0 50px;
+  }
+
+  .landing__title {
+    font-size: 1.75rem;
+  }
+
+  .landing__cta {
+    flex-direction: column;
+  }
+
+  .landing__cta .btn {
+    width: 100%;
+  }
+
+  .landing__builds {
+    grid-template-columns: 1fr;
+  }
+
+  .landing__bottom-cta {
+    padding: 50px 0;
+  }
+}

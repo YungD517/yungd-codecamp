@@ -1,0 +1,115 @@
+.quiz-header p {
+  font-size: 0.9375rem;
+}
+
+.quiz-attempts-note {
+  font-size: 0.8125rem;
+  color: var(--accent-text);
+}
+
+.quiz-question {
+  margin-bottom: 20px;
+  padding: 24px;
+}
+
+.quiz-question__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.quiz-question__num {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.quiz-question__text {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  text-align: left;
+  width: 100%;
+}
+
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.quiz-option--selected {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
+.quiz-option--correct {
+  border-color: var(--success);
+  background: var(--success-subtle);
+  color: var(--success);
+}
+
+.quiz-option--wrong {
+  border-color: var(--error);
+  background: var(--error-subtle);
+  color: var(--error);
+}
+
+.quiz-option__letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.quiz-option--selected .quiz-option__letter {
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-color: var(--accent);
+}
+
+.quiz-result {
+  text-align: center;
+  padding: 32px;
+}
+
+.quiz-result h2 {
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.quiz-result p {
+  font-size: 0.875rem;
+}
