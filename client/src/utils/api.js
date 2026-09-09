@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
-  withCredentials: true,
+  baseURL: "https://yungd-codecamp-api.onrender.com/api", withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
