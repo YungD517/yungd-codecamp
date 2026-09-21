@@ -55,7 +55,7 @@ const sessionSchema = new mongoose.Schema(
     day: {
       type: String,
       required: [true, "Day is required"],
-      enum: ["Monday", "Tuesday", "Wednesday"],
+      enum: ["Wednesday", "Friday", "Saturday"],
     },
     order: {
       type: Number,

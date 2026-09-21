@@ -15,7 +15,7 @@ export default function ManageLessons() {
     studentContent: "",
     tutorContent: "",
     week: "",
-    day: "Monday",
+    day: "Wednesday",
     order: "",
     isPublished: false,
     codeSnippets: [],
@@ -38,7 +38,7 @@ export default function ManageLessons() {
   const resetForm = () => {
     setForm({
       sessionNumber: "", title: "", studentContent: "", tutorContent: "",
-      week: "", day: "Monday", order: "", isPublished: false, codeSnippets: [],
+      week: "", day: "Wednesday", order: "", isPublished: false, codeSnippets: [],
     });
     setEditing(null);
   };
@@ -155,9 +155,9 @@ export default function ManageLessons() {
               <label>Day</label>
               <select className="form-select" value={form.day}
                 onChange={(e) => setForm({ ...form, day: e.target.value })}>
-                <option>Monday</option>
-                <option>Tuesday</option>
                 <option>Wednesday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
               </select>
             </div>
             <div className="form-group">
