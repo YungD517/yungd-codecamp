@@ -1,27 +1,44 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 import "./QuizPage.css";
-
+ 
+// Fisher-Yates shuffle — returns a new shuffled array of indices [0..n-1]
+function shuffledIndices(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+ 
 export default function QuizPage() {
   const { sessionId } = useParams();
   const { fetchUser } = useAuth();
   const [quiz, setQuiz] = useState(null);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState({}); // keyed by ORIGINAL question index
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [attempts, setAttempts] = useState([]);
-
+ 
+  // Shuffle order — regenerated only when quiz loads or is retaken
+  const [questionOrder, setQuestionOrder] = useState([]); // shuffled original-question-indices
+  const [optionOrders, setOptionOrders] = useState([]); // per original question index: shuffled original-option-indices
+ 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         const { data } = await api.get(`/quizzes/session/${sessionId}`);
         setQuiz(data.data);
-
-        // Fetch previous attempts
+        setQuestionOrder(shuffledIndices(data.data.questions.length));
+        setOptionOrders(
+          data.data.questions.map((q) => shuffledIndices(q.options.length))
+        );
+ 
         const attData = await api.get(`/quizzes/${data.data._id}/attempts`);
         setAttempts(attData.data.data);
       } catch {
@@ -32,27 +49,29 @@ export default function QuizPage() {
     };
     fetchQuiz();
   }, [sessionId]);
-
-  const handleSelect = (questionIndex, optionIndex) => {
+ 
+  // originalQIndex = the question's real index in quiz.questions
+  // originalOIndex = the option's real index within that question's options
+  const handleSelect = (originalQIndex, originalOIndex) => {
     if (result) return;
-    setAnswers((prev) => ({ ...prev, [questionIndex]: optionIndex }));
+    setAnswers((prev) => ({ ...prev, [originalQIndex]: originalOIndex }));
   };
-
+ 
   const handleSubmit = async () => {
     if (Object.keys(answers).length < 10) {
       toast.error("Answer all 10 questions before submitting");
       return;
     }
-
+ 
     setSubmitting(true);
     try {
+      // Build the answer array in ORIGINAL question order — this is what the server expects
       const answerArray = Array.from({ length: 10 }, (_, i) => answers[i]);
       const { data } = await api.post(`/quizzes/${quiz._id}/attempt`, {
         answers: answerArray,
       });
       setResult(data.data);
       toast.success(`You scored ${data.data.score}/10`);
-      // Refresh user to update completedSessions
       fetchUser();
     } catch (err) {
       toast.error(err.message);
@@ -60,18 +79,15 @@ export default function QuizPage() {
       setSubmitting(false);
     }
   };
-
+ 
   const handleRetake = () => {
     setAnswers({});
     setResult(null);
+    // Reshuffle for the retake
+    setQuestionOrder(shuffledIndices(quiz.questions.length));
+    setOptionOrders(quiz.questions.map((q) => shuffledIndices(q.options.length)));
   };
-
-  const getDifficultyColor = (diff) => {
-    if (diff === "easy") return "badge--success";
-    if (diff === "medium") return "badge--accent";
-    return "badge--error";
-  };
-
+ 
   if (loading) {
     return (
       <div className="loader">
@@ -79,7 +95,7 @@ export default function QuizPage() {
       </div>
     );
   }
-
+ 
   if (!quiz) {
     return (
       <div className="page">
@@ -92,14 +108,14 @@ export default function QuizPage() {
       </div>
     );
   }
-
+ 
   return (
     <div className="page fade-in">
       <div className="container container--narrow">
         <Link to={`/session/${sessionId}`} className="session-back">
           ← Back to Session
         </Link>
-
+ 
         <div className="quiz-header mt-24">
           <h1>Quiz — {quiz.session?.title || "Session Quiz"}</h1>
           <p className="mt-8">
@@ -111,44 +127,51 @@ export default function QuizPage() {
             </p>
           )}
         </div>
-
+ 
         <div className="quiz-questions mt-32">
-          {quiz.questions.map((q, qIndex) => {
-            const reviewItem = result?.review?.[qIndex];
+          {questionOrder.map((originalQIndex, displayIndex) => {
+            const q = quiz.questions[originalQIndex];
+            const optOrder = optionOrders[originalQIndex] || [0, 1, 2, 3];
+            const reviewItem = result?.review?.[originalQIndex];
+ 
             return (
-              <div key={qIndex} className="quiz-question card">
+              <div key={originalQIndex} className="quiz-question card">
                 <div className="quiz-question__header">
-                  <span className="quiz-question__num">{qIndex + 1}</span>
-                  <span className={`badge ${getDifficultyColor(q.difficulty)}`}>
-                    {q.difficulty}
-                  </span>
+                  <span className="quiz-question__num">{displayIndex + 1}</span>
                 </div>
                 <p className="quiz-question__text">{q.questionText}</p>
                 <div className="quiz-options">
-                  {q.options.map((option, oIndex) => {
+                  {optOrder.map((originalOIndex) => {
+                    const optionText = q.options[originalOIndex];
                     let optionClass = "quiz-option";
+ 
                     if (result) {
-                      if (reviewItem.correctAnswer === oIndex) {
+                      if (reviewItem.correctAnswer === originalOIndex) {
                         optionClass += " quiz-option--correct";
                       }
-                      if (reviewItem.studentAnswer === oIndex && !reviewItem.isCorrect) {
+                      if (
+                        reviewItem.studentAnswer === originalOIndex &&
+                        !reviewItem.isCorrect
+                      ) {
                         optionClass += " quiz-option--wrong";
                       }
-                    } else if (answers[qIndex] === oIndex) {
+                    } else if (answers[originalQIndex] === originalOIndex) {
                       optionClass += " quiz-option--selected";
                     }
-
+ 
                     return (
                       <button
-                        key={oIndex}
+                        key={originalOIndex}
                         className={optionClass}
-                        onClick={() => handleSelect(qIndex, oIndex)}
+                        onClick={() => handleSelect(originalQIndex, originalOIndex)}
                         disabled={!!result}
                       >
                         <span className="quiz-option__letter">
-                          {String.fromCharCode(65 + oIndex)}
+                          {String.fromCharCode(
+                            65 + optOrder.indexOf(originalOIndex)
+                          )}
                         </span>
-                        {option}
+                        {optionText}
                       </button>
                     );
                   })}
@@ -157,7 +180,7 @@ export default function QuizPage() {
             );
           })}
         </div>
-
+ 
         <div className="quiz-footer mt-32">
           {result ? (
             <div className="quiz-result card">

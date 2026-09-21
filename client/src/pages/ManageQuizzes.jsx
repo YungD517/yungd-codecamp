@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 import "./ManagePages.css";
-
+ 
 const EMPTY_QUESTION = {
   questionText: "", options: ["", "", "", ""], correctAnswer: 0, difficulty: "easy",
 };
-
+ 
 export default function ManageQuizzes() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState("");
@@ -15,7 +15,8 @@ export default function ManageQuizzes() {
   const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
+  const [bulkText, setBulkText] = useState("");
+ 
   useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -25,7 +26,7 @@ export default function ManageQuizzes() {
     };
     fetchSessions();
   }, []);
-
+ 
   useEffect(() => {
     if (!selectedSession) { setExistingQuiz(null); setQuestions([]); return; }
     const fetchQuiz = async () => {
@@ -42,7 +43,35 @@ export default function ManageQuizzes() {
     };
     fetchQuiz();
   }, [selectedSession]);
-
+ 
+  const parseBulk = () => {
+    const blocks = bulkText.trim().split(/\n\s*\n/).filter(Boolean);
+    if (blocks.length !== 10) {
+      toast.error(`Found ${blocks.length} questions — need exactly 10`);
+      return;
+    }
+    try {
+      const parsed = blocks.map((block, i) => {
+        const lines = block.trim().split("\n").map((l) => l.trim()).filter(Boolean);
+        const questionText = lines[0].replace(/^\d+[).]\s*/, "");
+        const options = lines.slice(1, 5).map((l) => l.replace(/^[A-Da-d][).]\s*/, ""));
+        if (options.length !== 4) {
+          throw new Error(`Question ${i + 1} doesn't have exactly 4 options`);
+        }
+        return {
+          questionText,
+          options,
+          correctAnswer: 0,
+          difficulty: questions[i]?.difficulty || "easy",
+        };
+      });
+      setQuestions(parsed);
+      toast.success("Parsed! Now select the correct answer and difficulty for each.");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+ 
   const updateQuestion = (qi, field, value) => {
     setQuestions((prev) => {
       const q = [...prev];
@@ -50,7 +79,7 @@ export default function ManageQuizzes() {
       return q;
     });
   };
-
+ 
   const updateOption = (qi, oi, value) => {
     setQuestions((prev) => {
       const q = [...prev];
@@ -60,19 +89,19 @@ export default function ManageQuizzes() {
       return q;
     });
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     const easy = questions.filter((q) => q.difficulty === "easy").length;
     const medium = questions.filter((q) => q.difficulty === "medium").length;
     const hard = questions.filter((q) => q.difficulty === "hard").length;
-
+ 
     if (questions.length !== 10) { toast.error("Must have exactly 10 questions"); return; }
     if (easy !== 3 || medium !== 2 || hard !== 5) {
       toast.error("Need 3 easy, 2 medium, 5 hard questions"); return;
     }
-
+ 
     setSaving(true);
     try {
       const payload = { session: selectedSession, questions, isPublished };
@@ -89,21 +118,15 @@ export default function ManageQuizzes() {
       setSaving(false);
     }
   };
-
-  const getDiffBadge = (diff) => {
-    if (diff === "easy") return "badge--success";
-    if (diff === "medium") return "badge--accent";
-    return "badge--error";
-  };
-
+ 
   if (loading) return <div className="loader"><div className="spinner" /></div>;
-
+ 
   return (
     <div className="page fade-in">
       <div className="container">
         <h1>Manage Quizzes</h1>
         <p className="mt-8">Create or edit quizzes for each session.</p>
-
+ 
         <div className="form-group mt-32" style={{ maxWidth: 400 }}>
           <label>Select Session</label>
           <select className="form-select" value={selectedSession}
@@ -116,15 +139,33 @@ export default function ManageQuizzes() {
             ))}
           </select>
         </div>
-
+ 
         {selectedSession && questions.length > 0 && (
           <form onSubmit={handleSubmit} className="mt-32">
+            <div className="card mb-24" style={{ padding: 20 }}>
+              <h4 className="mb-8">Bulk Paste Questions</h4>
+              <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", marginBottom: 12 }}>
+                Paste 10 questions, one blank line between each. Format: "1) Question" then
+                four lines "A) Option" through "D) Option".
+              </p>
+              <textarea
+                className="form-textarea"
+                rows="10"
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                placeholder={"1) Question text?\nA) Option\nB) Option\nC) Option\nD) Option\n\n2) Next question?\n..."}
+              />
+              <button type="button" className="btn btn--secondary mt-8" onClick={parseBulk}>
+                Parse Questions
+              </button>
+            </div>
+ 
             <div className="quiz-difficulty-count mb-24">
               <span className="badge badge--success">Easy: {questions.filter((q) => q.difficulty === "easy").length}/3</span>
               <span className="badge badge--accent">Medium: {questions.filter((q) => q.difficulty === "medium").length}/2</span>
               <span className="badge badge--error">Hard: {questions.filter((q) => q.difficulty === "hard").length}/5</span>
             </div>
-
+ 
             {questions.map((q, qi) => (
               <div key={qi} className="card mb-16" style={{ padding: 24 }}>
                 <div className="flex items-center justify-between mb-16">
@@ -137,7 +178,7 @@ export default function ManageQuizzes() {
                     <option value="hard">Hard</option>
                   </select>
                 </div>
-
+ 
                 <div className="form-group">
                   <label>Question</label>
                   <input type="text" className="form-input" value={q.questionText}
@@ -146,7 +187,7 @@ export default function ManageQuizzes() {
                     required
                   />
                 </div>
-
+ 
                 {q.options.map((opt, oi) => (
                   <div key={oi} className="flex items-center gap-8 mb-8">
                     <input type="radio" name={`correct-${qi}`}
@@ -166,7 +207,7 @@ export default function ManageQuizzes() {
                 ))}
               </div>
             ))}
-
+ 
             <div className="flex items-center gap-16 mt-24">
               <label className="manage-toggle">
                 <input type="checkbox" checked={isPublished}
@@ -175,13 +216,13 @@ export default function ManageQuizzes() {
                 <span>Publish quiz</span>
               </label>
             </div>
-
+ 
             <button type="submit" className="btn btn--primary btn--lg mt-24" disabled={saving}>
               {saving ? "Saving..." : existingQuiz ? "Update Quiz" : "Create Quiz"}
             </button>
           </form>
         )}
-
+ 
         {selectedSession && questions.length === 0 && !existingQuiz && (
           <div className="empty-state mt-32">
             <p>Loading quiz form...</p>
